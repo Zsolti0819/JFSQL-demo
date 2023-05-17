@@ -1,7 +1,6 @@
 package com.github.jfsql.demo;
 
 
-import java.sql.SQLException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,35 +23,43 @@ public class TaskController {
 
     @PostMapping("/task")
     public void createTask(@RequestBody final Task task) {
+        System.out.println("TaskController.createTask");
+        System.out.println("task = " + task);
         taskService.createTask(task);
     }
 
     @PutMapping("/task/{id}")
     public void updateTask(@RequestBody final Task task, @PathVariable("id") final Long id) {
+        System.out.println("TaskController.updateTask");
         System.out.println("task = " + task + ", id = " + id);
         taskService.updateTask(task, id);
     }
 
-    @PutMapping("/tasks")
-    public void updateTasks(@RequestBody final List<Task> tasks) throws SQLException {
-        taskService.updateTasks(tasks);
-    }
-
     @GetMapping("/tasks")
     public List<Task> getAllTask() {
+        System.out.println("TaskController.getAllTask");
         return taskService.selectAllTask();
     }
 
-    @GetMapping("/task/{id}")
+    @GetMapping("/update/{id}")
     public Task getTaskById(@PathVariable("id") final Long id) {
+        System.out.println("TaskController.getTaskById");
+        System.out.println("id = " + id);
         return taskService.getTaskById(id);
     }
 
     @DeleteMapping("/delete/{id}")
     public void deleteTaskById(@PathVariable("id") final Long id) {
+        System.out.println("TaskController.deleteTaskById");
         System.out.println("id = " + id);
         taskService.deleteTaskById(id);
     }
 
+    @GetMapping("/tasks?completed={filterValue}")
+    public List<Task> filterTaskByCompletion(final String status) {
+        System.out.println("TaskController.filterTaskByCompletion");
+        System.out.println("status = " + status);
+        return taskService.selectTasksByCompletion(status);
+    }
 
 }

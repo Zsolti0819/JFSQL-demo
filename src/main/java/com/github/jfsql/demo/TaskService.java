@@ -31,7 +31,6 @@ public class TaskService {
     }
 
     public void updateTask(final Task task, final Long id) {
-        System.out.println("task = " + task + ", id = " + id);
         try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
             final PreparedStatement preparedStatement = connection.prepareStatement(
                 "UPDATE tasks SET description = ?, completed = ? WHERE id = ?");
@@ -45,31 +44,34 @@ public class TaskService {
 
     }
 
-    public void updateTasks(final List<Task> tasks) throws SQLException {
-        System.out.println("tasks = " + tasks);
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
-            for (final Task task : tasks) {
-                try {
-                    final PreparedStatement preparedStatement = connection.prepareStatement(
-                        "UPDATE tasks SET description = ?, completed = ? WHERE id = ?");
-                    preparedStatement.setString(1, task.getDescription());
-                    preparedStatement.setString(2, String.valueOf(task.isCompleted()));
-                    preparedStatement.setLong(3, task.getId());
-                    preparedStatement.execute();
-                } catch (final SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
-
     public List<Task> selectAllTask() {
         final List<Task> allTasks = new ArrayList<>();
         try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING);
             final Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER, description TEXT, completed TEXT)");
             final ResultSet resultSet = statement.executeQuery("SELECT * FROM tasks;");
+            while (resultSet.next()) {
+                final long id = resultSet.getLong("id");
+                final String description = resultSet.getString("description");
+                final String completed = resultSet.getString("completed");
+                final Task task = new Task(id, description, Boolean.parseBoolean(completed));
+                allTasks.add(task);
+            }
+        } catch (final SQLException e) {
+            e.printStackTrace();
+        }
+        return allTasks;
+    }
+
+    public List<Task> selectTasksByCompletion(final String status) {
+        final List<Task> allTasks = new ArrayList<>();
+        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING);
+            final Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER, description TEXT, completed TEXT)");
+            final PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT * FROM tasks WHERE completed = ?;");
+            preparedStatement.setString(1, status);
+            final ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 final long id = resultSet.getLong("id");
                 final String description = resultSet.getString("description");
