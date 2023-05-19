@@ -25,8 +25,7 @@ form {
 
 form input, 
 form button {
-    padding: 0.5rem;
-    padding-left: 1rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
     font-size: 1.8rem;
     border: none;
     background: white;
@@ -37,7 +36,7 @@ form button {
     color: rgb(255, 200, 0);
     background: white;
     cursor: pointer;
-    transition: all 0.3 ease;
+    transition: all ease;
     margin-left: 0.5rem;
 }
 
@@ -99,7 +98,7 @@ form button:hover {
 }
 
 .todo-item {
-    padding: 0rem 0.5rem;
+    padding: 0 0.5rem;
 }
 
 .fa-trash, 
@@ -151,7 +150,7 @@ select {
     transition: all 0.3s ease;
 }
 
-.select::hover::after {
+.select:hover::after {
     background: white;
     color: rgb(255, 200, 0);
 }

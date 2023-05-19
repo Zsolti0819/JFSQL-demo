@@ -22,8 +22,8 @@ public class TaskService {
             final PreparedStatement preparedStatement = connection.prepareStatement(
                 "INSERT INTO tasks VALUES (?, ?, ?)");
             preparedStatement.setString(1, "default");
-            preparedStatement.setString(2, task.getDescription());
-            preparedStatement.setString(3, String.valueOf(task.isCompleted()));
+            preparedStatement.setString(2, task.description());
+            preparedStatement.setString(3, String.valueOf(task.completed()));
             preparedStatement.execute();
         } catch (final SQLException e) {
             e.printStackTrace();
@@ -34,8 +34,8 @@ public class TaskService {
         try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
             final PreparedStatement preparedStatement = connection.prepareStatement(
                 "UPDATE tasks SET description = ?, completed = ? WHERE id = ?");
-            preparedStatement.setString(1, task.getDescription());
-            preparedStatement.setString(2, String.valueOf(task.isCompleted()));
+            preparedStatement.setString(1, task.description());
+            preparedStatement.setString(2, String.valueOf(task.completed()));
             preparedStatement.setLong(3, id);
             preparedStatement.execute();
         } catch (final SQLException e) {
@@ -61,48 +61,6 @@ public class TaskService {
             e.printStackTrace();
         }
         return allTasks;
-    }
-
-    public List<Task> selectTasksByCompletion(final String status) {
-        final List<Task> allTasks = new ArrayList<>();
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING);
-            final Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER, description TEXT, completed TEXT)");
-            final PreparedStatement preparedStatement = connection.prepareStatement(
-                "SELECT * FROM tasks WHERE completed = ?;");
-            preparedStatement.setString(1, status);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                final long id = resultSet.getLong("id");
-                final String description = resultSet.getString("description");
-                final String completed = resultSet.getString("completed");
-                final Task task = new Task(id, description, Boolean.parseBoolean(completed));
-                allTasks.add(task);
-            }
-        } catch (final SQLException e) {
-            e.printStackTrace();
-        }
-        return allTasks;
-    }
-
-    public Task getTaskById(final long selectedId) {
-        long id = 0;
-        String description = null;
-        String completed = null;
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
-            final String sql = "SELECT * FROM tasks WHERE id = ?;";
-            final PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setLong(1, selectedId);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                id = resultSet.getLong("id");
-                description = resultSet.getString("description");
-                completed = resultSet.getString("completed");
-            }
-        } catch (final SQLException e) {
-            e.printStackTrace();
-        }
-        return new Task(id, description, Boolean.parseBoolean(completed));
     }
 
     public void deleteTaskById(final long selectedId) {

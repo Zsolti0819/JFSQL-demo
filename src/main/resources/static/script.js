@@ -1,12 +1,11 @@
 const todoInput = document.querySelector(".todo-input");
 const todoButton = document.querySelector(".todo-button");
 const todoList = document.querySelector(".todo-list");
-const filterOption = document.querySelector(".filter-todo");
 
-document.addEventListener("DOMContentLoaded", getServerTodos);
+document.querySelector(".filter-todo");
+document.addEventListener("DOMContentLoaded", getAllTasks);
 todoButton.addEventListener("click", createTodo);
 todoList.addEventListener("click", deleteCheck);
-filterOption.addEventListener("change", filterTodo);
 
 function createTodo() {
     const todoText = todoInput.value;
@@ -75,7 +74,7 @@ function deleteCheck(event) {
             completed: completed,
         };
 
-        fetch(`/task/${todoId}`, {
+        fetch(`/update/${todoId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -92,26 +91,6 @@ function deleteCheck(event) {
         });
     }
 }
-
-function filterTodo() {
-    const todos = todoList.querySelectorAll(".todo");
-    const filterValue = filterOption.value;
-
-    todos.forEach((todo) => {
-        const completed = todo.classList.contains("completed");
-
-        if (
-            filterValue === "all" ||
-            (filterValue === "completed" && completed && todo.style.display !== "none") ||
-            (filterValue === "incomplete" && !completed)
-        ) {
-            todo.style.display = "flex";
-        } else {
-            todo.style.display = "none";
-        }
-    });
-}
-
 function addTodoToList(todo) {
     const todoDiv = document.createElement("div");
     todoDiv.classList.add("todo");
@@ -142,7 +121,7 @@ function removeTodoFromList(todo) {
     todo.remove();
 }
 
-function getServerTodos() {
+function getAllTasks() {
     fetch("/tasks")
     .then(response => {
         if (response.ok) {

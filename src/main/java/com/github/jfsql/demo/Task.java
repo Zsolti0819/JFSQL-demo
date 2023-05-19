@@ -1,13 +1,5 @@
 package com.github.jfsql.demo;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+public record Task(long id, String description, boolean completed) {
 
-@Data
-@RequiredArgsConstructor
-public class Task {
-
-    private final long id;
-    private final String description;
-    private final boolean completed;
 }
