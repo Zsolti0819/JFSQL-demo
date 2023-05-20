@@ -91,6 +91,7 @@ function deleteCheck(event) {
         });
     }
 }
+
 function addTodoToList(todo) {
     const todoDiv = document.createElement("div");
     todoDiv.classList.add("todo");
