@@ -18,6 +18,8 @@ function createTodo() {
         completed: false
     };
 
+    addTodoToList(todo);
+
     fetch("/task", {
         method: "POST",
         headers: {
@@ -32,8 +34,7 @@ function createTodo() {
             throw new Error("Failed to create todo");
         }
     })
-    .then(createdTodo => {
-        addTodoToList(createdTodo);
+    .then(() => {
         todoInput.value = "";
     })
     .catch(error => {
