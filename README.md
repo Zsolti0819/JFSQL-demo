@@ -1,1 +1,1 @@
-# JFSQL-todo-demo
+# JFSQL-demo

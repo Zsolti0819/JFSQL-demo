@@ -1,41 +1,41 @@
-const todoInput = document.querySelector(".todo-input");
-const todoButton = document.querySelector(".todo-button");
-const todoList = document.querySelector(".todo-list");
+const taskInput = document.querySelector(".task-input");
+const taskButton = document.querySelector(".task-button");
+const taskList = document.querySelector(".task-list");
 
-document.querySelector(".filter-todo");
+document.querySelector(".filter-task");
 document.addEventListener("DOMContentLoaded", getAllTasks);
-todoButton.addEventListener("click", createTodo);
-todoList.addEventListener("click", deleteCheck);
+taskButton.addEventListener("click", createTask);
+taskList.addEventListener("click", deleteCheck);
 
-function createTodo() {
-    const todoText = todoInput.value;
-    if (todoText.trim() === "") {
+function createTask() {
+    const taskText = taskInput.value;
+    if (taskText.trim() === "") {
         return;
     }
 
-    const todo = {
-        description: todoText,
+    const task = {
+        description: taskText,
         completed: false
     };
 
-    addTodoToList(todo);
+    addTaskToList(task);
 
     fetch("/task", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(todo)
+        body: JSON.stringify(task)
     })
     .then(response => {
         if (response.ok) {
             return response.json();
         } else {
-            throw new Error("Failed to create todo");
+            throw new Error("Failed to create task");
         }
     })
     .then(() => {
-        todoInput.value = "";
+        taskInput.value = "";
     })
     .catch(error => {
         console.error(error);
@@ -44,19 +44,19 @@ function createTodo() {
 
 function deleteCheck(event) {
     const item = event.target;
-    const todo = item.parentElement;
-    const todoId = todo.dataset.id;
-    const todoDescription = todo.querySelector(".todo-item").innerText;
+    const task = item.parentElement;
+    const taskId = task.dataset.id;
+    const taskDescription = task.querySelector(".task-item").innerText;
 
     if (item.classList.contains("trash-btn")) {
-        fetch(`/delete/${todoId}`, {
+        fetch(`/delete/${taskId}`, {
             method: "DELETE"
         })
         .then(response => {
             if (response.ok) {
-                removeTodoFromList(todo);
+                removeTaskFromList(task);
             } else {
-                throw new Error("Failed to delete todo");
+                throw new Error("Failed to delete task");
             }
         })
         .catch(error => {
@@ -65,26 +65,26 @@ function deleteCheck(event) {
     }
 
     if (item.classList.contains("complete-btn")) {
-        const todoItem = todo.querySelector(".todo-item");
-        const completed = !todoItem.classList.contains("completed");
+        const taskItem = task.querySelector(".task-item");
+        const completed = !taskItem.classList.contains("completed");
 
-        todoItem.classList.toggle("completed");
+        taskItem.classList.toggle("completed");
 
-        const updatedTodo = {
-            description: todoDescription,
+        const updatedTask = {
+            description: taskDescription,
             completed: completed,
         };
 
-        fetch(`/update/${todoId}`, {
+        fetch(`/update/${taskId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updatedTodo),
+            body: JSON.stringify(updatedTask),
         })
         .then((response) => {
             if (!response.ok) {
-                throw new Error("Failed to update todo");
+                throw new Error("Failed to update task");
             }
         })
         .catch((error) => {
@@ -93,34 +93,34 @@ function deleteCheck(event) {
     }
 }
 
-function addTodoToList(todo) {
-    const todoDiv = document.createElement("div");
-    todoDiv.classList.add("todo");
-    todoDiv.dataset.id = todo.id;
+function addTaskToList(task) {
+    const taskDiv = document.createElement("div");
+    taskDiv.classList.add("task");
+    taskDiv.dataset.id = task.id;
 
-    const newTodo = document.createElement("li");
-    newTodo.innerText = todo.description;
-    newTodo.classList.add("todo-item");
-    if (todo.completed) {
-        newTodo.classList.add("completed");
+    const newTask = document.createElement("li");
+    newTask.innerText = task.description;
+    newTask.classList.add("task-item");
+    if (task.completed) {
+        newTask.classList.add("completed");
     }
-    todoDiv.appendChild(newTodo);
+    taskDiv.appendChild(newTask);
 
     const completedButton = document.createElement("button");
     completedButton.innerHTML = '<i class="fas fa-check-circle"></i>';
     completedButton.classList.add("complete-btn");
-    todoDiv.appendChild(completedButton);
+    taskDiv.appendChild(completedButton);
 
     const trashButton = document.createElement("button");
     trashButton.innerHTML = '<i class="fas fa-trash"></i>';
     trashButton.classList.add("trash-btn");
-    todoDiv.appendChild(trashButton);
+    taskDiv.appendChild(trashButton);
 
-    todoList.appendChild(todoDiv);
+    taskList.appendChild(taskDiv);
 }
 
-function removeTodoFromList(todo) {
-    todo.remove();
+function removeTaskFromList(task) {
+    task.remove();
 }
 
 function getAllTasks() {
@@ -129,12 +129,12 @@ function getAllTasks() {
         if (response.ok) {
             return response.json();
         } else {
-            throw new Error("Failed to fetch todos");
+            throw new Error("Failed to fetch tasks");
         }
     })
-    .then(todos => {
-        todos.forEach(todo => {
-            addTodoToList(todo);
+    .then(tasks => {
+        tasks.forEach(task => {
+            addTaskToList(task);
         });
     })
     .catch(error => {

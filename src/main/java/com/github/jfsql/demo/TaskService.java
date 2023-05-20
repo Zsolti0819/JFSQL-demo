@@ -15,10 +15,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class TaskService {
 
-    public void createTask(final Task task) {
+    public TaskService() {
         try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING);
             final Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER, description TEXT, completed TEXT)");
+        } catch (final SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createTask(final Task task) {
+        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
             final PreparedStatement preparedStatement = connection.prepareStatement(
                 "INSERT INTO tasks VALUES (?, ?, ?)");
             preparedStatement.setString(1, "default");
@@ -41,14 +48,12 @@ public class TaskService {
         } catch (final SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     public List<Task> selectAllTask() {
         final List<Task> allTasks = new ArrayList<>();
         try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING);
             final Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER, description TEXT, completed TEXT)");
             final ResultSet resultSet = statement.executeQuery("SELECT * FROM tasks;");
             while (resultSet.next()) {
                 final long id = resultSet.getLong("id");
