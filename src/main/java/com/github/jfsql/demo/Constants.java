@@ -9,7 +9,7 @@ public class Constants {
 
     public static final Path workingDirectory = Path.of("").toAbsolutePath();
     public static final Path RESOURCES_PATH = Path.of(String.valueOf(workingDirectory), "src", "main", "resources");
-    public static final String JFSQL_CONNECTION_STRING =
-        "jdbc:jfsql:" + RESOURCES_PATH + File.separator + "databases" + File.separator + "myDatabase";
+        public static final String CONNECTION_STRING = "jdbc:jfsql:" + RESOURCES_PATH + File.separator + "databases" + File.separator + "myDatabase";
+//    public static final String CONNECTION_STRING = "jdbc:sqlite:" + RESOURCES_PATH + File.separator + "databases" + File.separator + "myDatabase.db";
 
 }

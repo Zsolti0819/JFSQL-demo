@@ -1,6 +1,6 @@
 package com.github.jfsql.demo;
 
-import static com.github.jfsql.demo.Constants.JFSQL_CONNECTION_STRING;
+import static com.github.jfsql.demo.Constants.CONNECTION_STRING;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class TaskService {
 
     public TaskService() {
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING);
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING);
             final Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER, description TEXT, completed TEXT)");
         } catch (final SQLException e) {
@@ -25,10 +25,23 @@ public class TaskService {
     }
 
     public void createTask(final Task task) {
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING)) {
+            int maxId = 0;
+            if (CONNECTION_STRING.contains("sqlite")) {
+                final Statement statement = connection.createStatement();
+                try (final ResultSet resultSet = statement.executeQuery("SELECT MAX(id) FROM tasks")) {
+                    if (resultSet.next()) {
+                        final int maxIdResult = resultSet.getInt(1);
+                        if (!resultSet.wasNull()) {
+                            maxId = maxIdResult + 1;
+                        }
+                    }
+                }
+            }
             final PreparedStatement preparedStatement = connection.prepareStatement(
                 "INSERT INTO tasks VALUES (?, ?, ?)");
-            preparedStatement.setString(1, "default");
+            preparedStatement.setString(1,
+                CONNECTION_STRING.contains("sqlite") ? String.valueOf(maxId) : "default");
             preparedStatement.setString(2, task.description());
             preparedStatement.setString(3, String.valueOf(task.completed()));
             preparedStatement.execute();
@@ -38,7 +51,7 @@ public class TaskService {
     }
 
     public void updateTask(final Task task, final Long id) {
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING)) {
             final PreparedStatement preparedStatement = connection.prepareStatement(
                 "UPDATE tasks SET description = ?, completed = ? WHERE id = ?");
             preparedStatement.setString(1, task.description());
@@ -52,7 +65,7 @@ public class TaskService {
 
     public List<Task> selectAllTask() {
         final List<Task> allTasks = new ArrayList<>();
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING);
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING);
             final Statement statement = connection.createStatement()) {
             final ResultSet resultSet = statement.executeQuery("SELECT * FROM tasks;");
             while (resultSet.next()) {
@@ -69,7 +82,7 @@ public class TaskService {
     }
 
     public void deleteTaskById(final long selectedId) {
-        try (final Connection connection = DriverManager.getConnection(JFSQL_CONNECTION_STRING)) {
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING)) {
             final String sql = "DELETE FROM tasks WHERE id = ?;";
             final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setLong(1, selectedId);
