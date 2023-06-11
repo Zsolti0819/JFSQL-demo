@@ -10,13 +10,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskService {
+    
+    private static final Properties PROPERTIES = new Properties();
 
     public TaskService() {
-        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING);
+        PROPERTIES.setProperty("transaction.versioning", "jgit");
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING, PROPERTIES);
             final Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS tasks (id INTEGER, description TEXT, completed TEXT)");
         } catch (final SQLException e) {
@@ -25,7 +29,7 @@ public class TaskService {
     }
 
     public void createTask(final Task task) {
-        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING)) {
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING, PROPERTIES)) {
             int maxId = 0;
             if (CONNECTION_STRING.contains("sqlite")) {
                 final Statement statement = connection.createStatement();
@@ -51,7 +55,7 @@ public class TaskService {
     }
 
     public void updateTask(final Task task, final Long id) {
-        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING)) {
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING, PROPERTIES)) {
             final PreparedStatement preparedStatement = connection.prepareStatement(
                 "UPDATE tasks SET description = ?, completed = ? WHERE id = ?");
             preparedStatement.setString(1, task.description());
@@ -65,7 +69,7 @@ public class TaskService {
 
     public List<Task> selectAllTask() {
         final List<Task> allTasks = new ArrayList<>();
-        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING);
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING, PROPERTIES);
             final Statement statement = connection.createStatement()) {
             final ResultSet resultSet = statement.executeQuery("SELECT * FROM tasks;");
             while (resultSet.next()) {
@@ -82,7 +86,7 @@ public class TaskService {
     }
 
     public void deleteTaskById(final long selectedId) {
-        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING)) {
+        try (final Connection connection = DriverManager.getConnection(CONNECTION_STRING, PROPERTIES)) {
             final String sql = "DELETE FROM tasks WHERE id = ?;";
             final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setLong(1, selectedId);
